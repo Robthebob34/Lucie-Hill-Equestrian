@@ -201,7 +201,7 @@ function Booking() {
   }
 
   // Submit booking
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const bookingId = `LHE-${Date.now().toString(36).toUpperCase()}`
     const booking = {
       id: bookingId,
@@ -217,6 +217,19 @@ function Booking() {
     const bookings = getExistingBookings()
     bookings.push(booking)
     localStorage.setItem('bookings', JSON.stringify(bookings))
+
+    // Send confirmation emails (non-blocking)
+    try {
+      await fetch('/.netlify/functions/send-booking-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(booking)
+      })
+      console.log('Confirmation emails sent')
+    } catch (error) {
+      console.error('Failed to send confirmation emails:', error)
+      // Don't block the booking if email fails
+    }
 
     setBookingDetails(booking)
     setBookingComplete(true)
