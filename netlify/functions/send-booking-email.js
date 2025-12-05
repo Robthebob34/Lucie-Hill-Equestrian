@@ -47,7 +47,7 @@ exports.handler = async (event) => {
     // Email to Lucie (owner notification)
     await resend.emails.send({
       from: 'Lucie Hill Equestrian <bookings@resend.dev>',
-      to: 'hill.lucie@gmail.com',
+      to: ['heck.robin@gmail.com'],
       subject: `🐴 New Booking: ${booking.firstName} ${booking.lastName} - ${formattedDate}`,
       html: `
         <!DOCTYPE html>
