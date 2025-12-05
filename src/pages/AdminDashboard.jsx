@@ -168,7 +168,8 @@ function AdminDashboard() {
   }, {})
 
   // Update booking status
-  const updateStatus = (bookingId, newStatus) => {
+  const updateStatus = async (bookingId, newStatus) => {
+    const booking = bookings.find(b => b.id === bookingId)
     const updatedBookings = bookings.map(b => 
       b.id === bookingId ? { ...b, status: newStatus } : b
     )
@@ -176,6 +177,20 @@ function AdminDashboard() {
     localStorage.setItem('bookings', JSON.stringify(updatedBookings))
     setShowModal(false)
     setSelectedBooking(null)
+
+    // Send status update email to client
+    if (booking && ['confirmed', 'completed', 'cancelled'].includes(newStatus)) {
+      try {
+        await fetch('/.netlify/functions/send-status-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ booking, newStatus })
+        })
+        console.log(`Status email sent: ${newStatus}`)
+      } catch (error) {
+        console.error('Failed to send status email:', error)
+      }
+    }
   }
 
   // Delete booking
